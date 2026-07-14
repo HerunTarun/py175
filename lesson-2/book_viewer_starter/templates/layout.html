@@ -22,7 +22,7 @@
           <ul class="pure-menu-list">
             {% for chapter in contents %}
               <li class="pure-menu-item">
-                <a href="#" class="pure-menu-link">{{ chapter }}</a>
+                <a href="{{ url_for('chapter', page_num=loop.index) }}" class="pure-menu-link">{{ chapter }}</a>
               </li>
             {% endfor %}
           </ul>
