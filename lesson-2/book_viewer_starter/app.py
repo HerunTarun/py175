@@ -6,7 +6,7 @@ app = Flask(__name__)
 def index():
     with open('book_viewer/data/toc.txt', 'r') as file:
         contents = file.readlines()
-    return render_template('index.html', contents=contents)
+    return render_template('home.html', contents=contents)
 
 @app.route("/chapters/1")
 def chapter1():
