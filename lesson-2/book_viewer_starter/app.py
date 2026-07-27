@@ -1,6 +1,19 @@
-from flask import Flask, render_template, g, redirect
+from flask import Flask, render_template, g, redirect, request
 
 app = Flask(__name__)
+
+def chapters_matching(query):
+    if not query:
+        return []
+
+    results = []
+    for index, name in enumerate(g.contents, start=1):
+        with open(f"book_viewer/data/chp{index}.txt", "r") as file:
+            chapter_content = file.read()
+        if query.lower() in chapter_content.lower():
+            results.append({'number': index, 'name': name})
+
+    return results
 
 @app.before_request
 def load_contents():
@@ -39,6 +52,12 @@ def chapter(page_num):
 @app.route("/show/<name>")
 def show_name(name):
     return name
+
+@app.route("/search")
+def search():
+    query = request.args.get('query', '')
+    results = chapters_matching(query) if query else []
+    return render_template('search.html', query=query, results=results)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5003)
