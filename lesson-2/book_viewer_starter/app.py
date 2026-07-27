@@ -1,4 +1,4 @@
-from flask import Flask, render_template, g
+from flask import Flask, render_template, g, redirect
 
 app = Flask(__name__)
 
@@ -17,7 +17,7 @@ def in_paragraphs(text):
 
 @app.errorhandler(404)
 def page_not_found(error):
-    return render_template('404.html'), 404
+    return redirect('/')
 
 @app.route("/")
 def index():
