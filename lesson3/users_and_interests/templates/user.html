@@ -1,0 +1,38 @@
+{% extends 'layout.html' %}
+
+{% block user_info %}
+
+  <h3>Email</h3>
+  <p>{{ contents[user]['email'] }}</p>
+
+  <h3>Interests</h3>
+  <p>
+    {% if contents[user]['interests'] %}
+      {{ ', '.join(contents[user]['interests']) }}
+    {% else %}
+      {{ "I don't have any interests!"}}
+    {% endif %}
+  </p>
+
+{% endblock %}
+
+{% block other_users %}
+
+  <h3>Other Users</h3>
+  <ul>
+    {% for other_user in contents %}
+      {% if other_user != user %}
+        <li>
+          <a href="{{ url_for('user', user=other_user) }}">
+            {{ other_user.capitalize() }}
+          </a>
+        </li>
+      {% endif %}
+    {% endfor %}
+  </ul>
+
+{% endblock %}
+
+{% block total_users_and_interests %}
+  <p>There are {{people}} people with a total of {{interests}} interests.</p>
+{% endblock %}
