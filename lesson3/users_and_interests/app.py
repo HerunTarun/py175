@@ -24,7 +24,7 @@ def users():
                            people=people,
                            interests=interests)
 
-@app.route('/<user>')
+@app.route('/users/<user>')
 def user(user):
     if user not in user_data.keys():
         return redirect(url_for('no_such_user'))
@@ -38,7 +38,10 @@ def user(user):
 
 @app.route('/no_such_user')
 def no_such_user():
-    return render_template('no_such_user.html')
+    people, interests = total_interests()
+    return render_template('no_such_user.html',
+                           people=people,
+                           interests=interests)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5003)

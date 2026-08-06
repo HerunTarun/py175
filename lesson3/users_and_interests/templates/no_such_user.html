@@ -1,14 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>No Such User</title>
-  </head>
-  <body>
+{% extends 'layout.html' %}
+
+{% block content %}
     <h3>No Such User!</h3>
     <p>Oh no, that user does not exist!</p>
     <p>
       <a href="{{ url_for('users') }}">Click here to see all users</a>
     </p>
-  </body>
-</html>
+
+{% endblock %}
