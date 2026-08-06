@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>{{ user }}</title>
+    <title>{{ user if user else 'User'}}</title>
   </head>
   <body>
     {% block user_info %}{% endblock %}

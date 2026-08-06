@@ -1,33 +1,35 @@
-from flask import Flask, render_template, redirect, g
+from flask import Flask, render_template, redirect, url_for
 import yaml
 
 app = Flask(__name__)
 
-def total_interests():
-    total_users = len(g.contents)
-    total_interests = sum([1 for person in g.contents.values()
-                           for _ in person['interests']])
-    return total_users, total_interests
+with open('users.yaml', 'r') as file:
+    user_data = yaml.safe_load(file)
 
-@app.before_request
-def load_contents():
-    with open('users.yaml', 'r') as file:
-        g.contents = yaml.safe_load(file)
+def total_interests():
+    total_users = len(user_data)
+    interest_count = sum([1 for person in user_data.values()
+                           for _ in person['interests']])
+    return total_users, interest_count
 
 @app.route('/')
 def index():
-    return redirect('/users')
+    return redirect(url_for('users'))
 
 @app.route('/users')
 def users():
-    return render_template('users_list.html', contents=g.contents)
+    people, interests = total_interests()
+    return render_template('users_list.html',
+                           contents=user_data,
+                           people=people,
+                           interests=interests)
 
 @app.route('/<user>')
 def user(user):
     people, interests = total_interests()
     return render_template('user.html',
                            user=user,
-                           contents=g.contents,
+                           contents=user_data,
                            people=people,
                            interests=interests)
 
