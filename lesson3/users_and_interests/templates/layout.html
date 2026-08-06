@@ -2,11 +2,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>{{ user if user else 'User'}}</title>
+    <title>{{ user.capitalize() if user else 'Users'}}</title>
   </head>
   <body>
-    {% block user_info %}{% endblock %}
-    {% block other_users %}{% endblock %}
-    {% block total_users_and_interests %}{% endblock %}
+    {% block content %}{% endblock %}
   </body>
 </html>

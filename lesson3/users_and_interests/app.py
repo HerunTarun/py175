@@ -8,8 +8,8 @@ with open('users.yaml', 'r') as file:
 
 def total_interests():
     total_users = len(user_data)
-    interest_count = sum([1 for person in user_data.values()
-                           for _ in person['interests']])
+    interest_count = sum(1 for person in user_data.values()
+                           for _ in person['interests'])
     return total_users, interest_count
 
 @app.route('/')
@@ -26,12 +26,19 @@ def users():
 
 @app.route('/<user>')
 def user(user):
+    if user not in user_data.keys():
+        return redirect(url_for('no_such_user'))
+
     people, interests = total_interests()
     return render_template('user.html',
                            user=user,
                            contents=user_data,
                            people=people,
                            interests=interests)
+
+@app.route('/no_such_user')
+def no_such_user():
+    return render_template('no_such_user.html')
 
 if __name__ == '__main__':
     app.run(debug=True, port=5003)

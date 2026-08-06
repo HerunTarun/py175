@@ -1,17 +1,12 @@
 {% extends 'layout.html' %}
 
-{% block user_info %}
+{% block content %}
   <h2>All Users</h2>
   <ul>
     {% for user in contents %}
         <li><a href="{{ url_for('user', user=user) }}">{{ user.capitalize() }}</a></li>
     {% endfor %}
   </ul>
-
-{% endblock %}
-
-
-{% block total_users_and_interests %}
 
   <p>There are {{people}} people with a total of {{interests}} interests.</p>
 
