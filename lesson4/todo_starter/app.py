@@ -8,7 +8,7 @@ from flask import (
     url_for,
 )
 
-from todo_starter.utils import error_for_list_title
+from utils import error_for_list_title
 app = Flask(__name__)
 app.secret_key='secret1'
 
@@ -47,9 +47,6 @@ def create_list():
     flash("The list has been created.", "success")
     session.modified = True
     return redirect(url_for('get_lists'))
-
-    flash("The title must be between 1 and 100 characters", "error")
-    return render_template('new_list.html', title=title)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5003)
