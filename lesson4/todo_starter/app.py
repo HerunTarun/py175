@@ -7,8 +7,9 @@ from flask import (
     request, session,
     url_for,
 )
+from utils import error_for_list_title, find_list_by_id
+from werkzeug.exceptions import NotFound
 
-from utils import error_for_list_title
 app = Flask(__name__)
 app.secret_key='secret1'
 
@@ -47,6 +48,15 @@ def create_list():
     flash("The list has been created.", "success")
     session.modified = True
     return redirect(url_for('get_lists'))
+
+@app.route('/lists/<list_id>')
+def display_todo_list(list_id):
+    todo_list = find_list_by_id(list_id, session['lists'])
+
+    if not todo_list:
+        raise NotFound("This is not the list you're looking for")
+
+    return render_template('list.html', list=todo_list)
 
 if __name__ == "__main__":
     app.run(debug=True, port=5003)
