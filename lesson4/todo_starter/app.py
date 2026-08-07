@@ -1,9 +1,11 @@
 from uuid import uuid4
-from flask import (Flask,
-                   redirect, render_template,
-                   request,
-                   session,
-                   url_for,
+from flask import (
+    flash,
+    Flask,
+    redirect,
+    render_template,
+    request, session,
+    url_for,
 )
 
 app = Flask(__name__)
@@ -24,10 +26,6 @@ def add_todo_list():
 
 @app.route('/lists')
 def get_lists():
-    lists = [
-        {"title": "Lunch Groceries", "todos": []},
-        {"title": "Dinner Groceries", "todos": []},
-    ]
     return render_template("lists.html", lists=session['lists'])
 
 @app.route('/lists', methods=["POST"])
@@ -38,6 +36,7 @@ def create_list():
         'title': title,
         'todos': [],
         })
+    flash("The list has been created.", "success")
     session.modified = True
     return redirect(url_for('get_lists'))
 
