@@ -8,6 +8,7 @@ from flask import (
     url_for,
 )
 
+from todo_starter.utils import error_for_list_title
 app = Flask(__name__)
 app.secret_key='secret1'
 
@@ -32,20 +33,20 @@ def get_lists():
 def create_list():
     title = request.form["list_title"].strip()
 
-    if any(lst['title'] == title for lst in session['lists']):
-        flash("The title must be unique", "error")
+    error = error_for_list_title(title, session['lists'])
+    if error:
+        flash(error, "error")
         return render_template('new_list.html', title=title)
 
-    if 1 <= len(title) <= 100:
-        session['lists'].append({
+    session['lists'].append({
             'id': str(uuid4()),
             'title': title,
             'todos': [],
-        })
+    })
 
-        flash("The list has been created.", "success")
-        session.modified = True
-        return redirect(url_for('get_lists'))
+    flash("The list has been created.", "success")
+    session.modified = True
+    return redirect(url_for('get_lists'))
 
     flash("The title must be between 1 and 100 characters", "error")
     return render_template('new_list.html', title=title)
