@@ -20,7 +20,7 @@
     <ul>
       {% for todo in list.todos %}
       <li class="{{'complete' if todo.completed else ''}}">
-        <form action="/lists/{{ lists.id }}/todos/{{ todo.id }}/toggle"
+        <form action="/lists/{{ list.id }}/todos/{{ todo.id }}/toggle"
               method="post"
               class="check">
           <input type="hidden" name="completed"
