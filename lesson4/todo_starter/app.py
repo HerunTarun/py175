@@ -3,7 +3,8 @@ from flask import (
     Flask,
     redirect,
     render_template,
-    request, session,
+    request,
+    session,
     url_for,
 )
 from functools import wraps
@@ -134,6 +135,36 @@ def complete_all(list_id, todo_list):
 
     return redirect(url_for("display_todo_list", list_id=list_id))
 
+@app.route('/lists/<list_id>/edit')
+@require_list
+def view_edit_list(list_id, todo_list):
+    return render_template('edit_list.html', list=todo_list)
+
+@app.route('/lists/<list_id>/delete', methods=['POST'])
+@require_list
+def delete_list(list_id, todo_list):
+    session['lists'] = [lst for lst in session['lists']
+                        if lst['id'] != list_id]
+
+    flash("The list has been deleted", "success")
+    session.modified = True
+
+    return redirect(url_for('get_lists'))
+
+@app.route('/lists/<list_id>', methods=['POST'])
+@require_list
+def update_list_name(list_id, todo_list):
+    title = request.form['list_title'].strip()
+
+    error = error_for_list_title(title, session['lists'])
+    if error:
+        flash(error, "error")
+        return render_template('edit_list.html', list=todo_list, title=title)
+
+    flash("List name has been updated", "success")
+    session.modified = True
+
+    return redirect(url_for("display_todo_list", list_id=list_id))
 
 
 if __name__ == "__main__":
