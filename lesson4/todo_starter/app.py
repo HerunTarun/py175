@@ -1,4 +1,3 @@
-from uuid import uuid4
 from flask import (
     flash,
     Flask,
@@ -7,11 +6,41 @@ from flask import (
     request, session,
     url_for,
 )
-from utils import error_for_list_title, find_list_by_id, error_for_todo_title
+from functools import wraps
+from uuid import uuid4
+from utils import (
+    delete_todo_by_id,
+    error_for_list_title,
+    error_for_todo_title,
+    find_list_by_id,
+    find_todo_by_id,
+    mark_all_complete,
+)
 from werkzeug.exceptions import NotFound
 
 app = Flask(__name__)
 app.secret_key='secret1'
+
+def require_list(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        list_id = kwargs.get('list_id')
+        todo_list = find_list_by_id(list_id, session['lists'])
+        if not todo_list:
+            raise NotFound("This is not the list you're looking for")
+        return func(todo_list=todo_list, *args, **kwargs)
+    return wrapper
+
+def require_todo(func):
+    @wraps(func)
+    @require_list
+    def wrapper(todo_list, *args, **kwargs):
+        todo_id = kwargs.get('todo_id')
+        todo = find_todo_by_id(todo_id, todo_list['todos'])
+        if not todo:
+            raise NotFound("This todo does not exist")
+        return func(todo_list=todo_list, todo=todo, *args, **kwargs)
+    return wrapper
 
 @app.before_request
 def initialize_session():
@@ -50,22 +79,14 @@ def create_list():
     return redirect(url_for('get_lists'))
 
 @app.route('/lists/<list_id>')
-def display_todo_list(list_id):
-    todo_list = find_list_by_id(list_id, session['lists'])
-
-    if not todo_list:
-        raise NotFound("This is not the list you're looking for")
-
+@require_list
+def display_todo_list(list_id, todo_list):
     return render_template('list.html', list=todo_list)
 
 @app.route('/lists/<list_id>/todos', methods=['POST'])
-def create_todo(list_id):
+@require_list
+def create_todo(list_id, todo_list):
     title = request.form["todo"].strip()
-
-    todo_list = find_list_by_id(list_id, session['lists'])
-    if not todo_list:
-            raise NotFound("This is not the list you're looking for")
-
 
     error = error_for_todo_title(title)
     if error:
@@ -82,6 +103,38 @@ def create_todo(list_id):
     session.modified = True
 
     return redirect(url_for("display_todo_list", list_id=list_id))
+
+@app.route('/lists/<list_id>/todos/<todo_id>/toggle', methods=['POST'])
+@require_todo
+def update_todo_status(list_id, todo_id, todo_list, todo):
+    todo['completed'] = (request.form['completed'] == 'True')
+
+    flash("Todo completed", "success")
+    session.modified = True
+
+    return redirect(url_for("display_todo_list", list_id=list_id))
+
+@app.route('/lists/<list_id>/todos/<todo_id>/delete', methods=['POST'])
+@require_todo
+def delete_todo(list_id, todo_id, todo_list, todo):
+    delete_todo_by_id(todo_id, todo_list)
+
+    flash("Todo deleted", "success")
+    session.modified = True
+
+    return redirect(url_for("display_todo_list", list_id=list_id))
+
+@app.route('/lists/<list_id>/complete_all', methods=['POST'])
+@require_list
+def complete_all(list_id, todo_list):
+    mark_all_complete(todo_list)
+
+    flash("All todos completed", "success")
+    session.modified = True
+
+    return redirect(url_for("display_todo_list", list_id=list_id))
+
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5003)
