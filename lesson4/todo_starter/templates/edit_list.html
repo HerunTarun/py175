@@ -10,9 +10,9 @@
                   action="{{ url_for('delete_list', list_id=list.id) }}"
                   method="post">
               <button type="submit" class="delete">Delete List</button>
+            </form>
           </li>
         </ul>
-      </form>
     </header>
   </section>
   <form action="{{ url_for('update_list_name', list_id=list.id) }}" method="post">

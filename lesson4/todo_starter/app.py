@@ -74,7 +74,6 @@ def get_lists():
                            todos_remaining=todos_remaining)
 
 @app.route('/lists', methods=['POST'])
-@require_list
 def create_list():
     title = request.form["list_title"].strip()
 
@@ -135,7 +134,7 @@ def update_todo_status(list_id, todo_id, todo_list, todo):
 def delete_todo(list_id, todo_id, todo_list, todo):
     delete_todo_by_id(todo_id, todo_list)
 
-    flash("Todo deleted", "success")
+    flash("Todo updated", "success")
     session.modified = True
 
     return redirect(url_for("display_todo_list", list_id=list_id))
@@ -176,6 +175,7 @@ def update_list_name(list_id, todo_list):
         flash(error, "error")
         return render_template('edit_list.html', list=todo_list, title=title)
 
+    todo_list['title'] = title
     flash("List name has been updated", "success")
     session.modified = True
 
