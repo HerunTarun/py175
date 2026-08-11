@@ -15,12 +15,20 @@ from utils import (
     error_for_todo_title,
     find_list_by_id,
     find_todo_by_id,
+    is_list_completed,
     mark_all_complete,
+    todos_remaining,
 )
 from werkzeug.exceptions import NotFound
 
 app = Flask(__name__)
 app.secret_key='secret1'
+
+@app.context_processor
+def list_utilities_processor():
+    return dict(
+        is_list_completed=is_list_completed
+    )
 
 def require_list(func):
     @wraps(func)
@@ -58,7 +66,9 @@ def add_todo_list():
 
 @app.route('/lists')
 def get_lists():
-    return render_template("lists.html", lists=session['lists'])
+    return render_template("lists.html",
+                           lists=session['lists'],
+                           todos_remaining=todos_remaining)
 
 @app.route('/lists', methods=['POST'])
 def create_list():
