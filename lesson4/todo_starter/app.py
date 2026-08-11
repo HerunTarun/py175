@@ -16,7 +16,9 @@ from utils import (
     find_list_by_id,
     find_todo_by_id,
     is_list_completed,
+    is_todo_completed,
     mark_all_complete,
+    sort_items,
     todos_remaining,
 )
 from werkzeug.exceptions import NotFound
@@ -66,8 +68,9 @@ def add_todo_list():
 
 @app.route('/lists')
 def get_lists():
+    lists = sort_items(session['lists'], is_list_completed)
     return render_template("lists.html",
-                           lists=session['lists'],
+                           lists=lists,
                            todos_remaining=todos_remaining)
 
 @app.route('/lists', methods=['POST'])
@@ -92,6 +95,7 @@ def create_list():
 @app.route('/lists/<list_id>')
 @require_list
 def display_todo_list(list_id, todo_list):
+    todo_list['todos'] = sort_items(todo_list['todos'], is_todo_completed)
     return render_template('list.html', list=todo_list)
 
 @app.route('/lists/<list_id>/todos', methods=['POST'])

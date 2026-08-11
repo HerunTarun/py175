@@ -25,10 +25,23 @@ def find_todo_by_id(todo_id, todos):
 def is_list_completed(todo_list):
     return len(todo_list['todos']) > 0 and todos_remaining(todo_list) == 0
 
+def is_todo_completed(todo):
+    return todo['completed']
+
 def mark_all_complete(todo_list):
     for todo in todo_list['todos']:
         todo['completed'] = True
     return None
+
+def sort_items(items, select_complete):
+    sorted_items = sorted(items, key=lambda item: item['title'].lower())
+
+    incomplete_items = [item for item in sorted_items
+                        if not select_complete(item)]
+    complete_items = [item for item in sorted_items
+                        if select_complete(item)]
+
+    return incomplete_items + complete_items
 
 def todos_remaining(lists):
     return sum(1 for todo in lists['todos']
