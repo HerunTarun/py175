@@ -124,7 +124,7 @@ def create_todo(list_id, todo_list):
 def update_todo_status(list_id, todo_id, todo_list, todo):
     todo['completed'] = (request.form['completed'] == 'True')
 
-    flash("Todo completed", "success")
+    flash("Todo updated", "success")
     session.modified = True
 
     return redirect(url_for("display_todo_list", list_id=list_id))
@@ -134,7 +134,7 @@ def update_todo_status(list_id, todo_id, todo_list, todo):
 def delete_todo(list_id, todo_id, todo_list, todo):
     delete_todo_by_id(todo_id, todo_list)
 
-    flash("Todo updated", "success")
+    flash("Todo deleted", "success")
     session.modified = True
 
     return redirect(url_for("display_todo_list", list_id=list_id))
