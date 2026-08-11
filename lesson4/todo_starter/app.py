@@ -74,6 +74,7 @@ def get_lists():
                            todos_remaining=todos_remaining)
 
 @app.route('/lists', methods=['POST'])
+@require_list
 def create_list():
     title = request.form["list_title"].strip()
 
