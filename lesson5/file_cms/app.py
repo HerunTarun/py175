@@ -1,10 +1,14 @@
 from flask import Flask, render_template
+import os
 
 app = Flask(__name__)
 
 @app.route("/")
-def view_home():
-    return render_template('layout.html')
+def index():
+    root = os.path.abspath(os.path.dirname(__file__))
+    data_dir = os.path.join(root, "data")
+    files = [os.path.basename(path) for path in os.listdir(data_dir)]
+    return render_template('index.html', files=files)
 
 
 if __name__ == "__main__":
