@@ -6,6 +6,7 @@ from flask import (
     redirect,
     url_for
     )
+from markdown import markdown
 import os
 
 app = Flask(__name__)
@@ -26,7 +27,12 @@ def document(file_name):
     file_path = os.path.join(data_dir, file_name)
 
     if os.path.isfile(file_path):
-        return send_from_directory(data_dir, file_name)
+        if file_name.endswith('.md'):
+            with open(file_path, "r") as f:
+                contents = markdown(f.read())
+            return markdown(contents)
+        else:
+            return send_from_directory(data_dir, file_name)
     else:
         flash(f"{file_name} does not exist", "error")
         return redirect(url_for('index', file_name = file_name))
