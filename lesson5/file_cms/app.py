@@ -4,6 +4,7 @@ from flask import (
     render_template,
     send_from_directory,
     redirect,
+    request,
     url_for
     )
 from markdown import markdown
@@ -34,9 +35,37 @@ def document(file_name):
         else:
             return send_from_directory(data_dir, file_name)
     else:
-        flash(f"{file_name} does not exist", "error")
+        flash(f"{file_name} does not exist.", "error")
         return redirect(url_for('index', file_name = file_name))
 
+@app.route("/<file_name>/edit")
+def edit_document(file_name):
+    root = os.path.abspath(os.path.dirname(__file__))
+    data_dir = os.path.join(root, "src", "file_cms", "data")
+    file_path = os.path.join(data_dir, file_name)
+
+    if os.path.isfile(file_path):
+        with open(file_path, "r") as f:
+            contents = f.read()
+        return render_template('edit_document.html',
+                           file_name=file_name,
+                           contents=contents)
+    else:
+        flash(f"{file_name} does not exist.", "error")
+        return redirect(url_for('index', file_name = file_name))
+
+@app.route("/<file_name>", methods=["post"])
+def update_document(file_name):
+    root = os.path.abspath(os.path.dirname(__file__))
+    data_dir = os.path.join(root, "src", "file_cms", "data")
+    file_path = os.path.join(data_dir, file_name)
+
+    new_contents = request.form['contents']
+    with open(file_path, 'w') as f:
+        f.write(new_contents)
+
+    flash(f"{file_name} has been updated.", "success")
+    return redirect(url_for('index'))
 
 if __name__ == "__main__":
     app.run(debug=True, port=5003)

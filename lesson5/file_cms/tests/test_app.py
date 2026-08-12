@@ -56,5 +56,13 @@ class TestApp(unittest.TestCase):
             self.assertIn("A dynamic <em>open source</em> programming",
                           response.get_data(as_text=True))
 
+    def test_edit_document(self):
+        # verify status code of edit button and content type
+        # verify edit form contents
+        # verify text area contents
+        # verify redirect after save changes
+        # verify new contents of document
+        # verify flash message
+        # verify flash message has been consumed
 if __name__ == "__main__":
     unittest.main()

@@ -12,7 +12,10 @@
 {% endwith %}
   <ul>
     {% for file in files %}
-      <li><a href="{{ url_for('document', file_name=file) }}">{{ file }}</a></li>
+      <li>
+        <a href="{{ url_for('document', file_name=file) }}">{{ file }}</a>
+        <a href="{{ url_for('edit_document', file_name=file)}}">Edit</a>
+      </li>
     {% endfor %}
   </ul>
 {% endblock %}
