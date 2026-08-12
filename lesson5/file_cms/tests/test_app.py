@@ -16,8 +16,7 @@ class TestApp(unittest.TestCase):
         self.assertIn("changes.txt", response.get_data(as_text=True))
         self.assertIn("history.txt", response.get_data(as_text=True))
 
-
-    def test_document(self):
+    def test_view_document(self):
         with self.client.get("/about.txt") as response:
             self.assertEqual(response.status_code, 200)
             self.assertEqual(response.content_type,
@@ -25,6 +24,23 @@ class TestApp(unittest.TestCase):
 
             self.assertEqual(response.get_data(),
                          b"This is my file management application")
+
+    def test_no_such_document(self):
+        # verify redirect
+        with self.client.get("/x9y5.ext") as response:
+            self.assertEqual(response.status_code, 302)
+
+        # send new GET and verify flash message
+        with self.client.get(response.headers['Location']) as response:
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("x9y5.ext does not exist",
+                      response.get_data(as_text=True))
+
+        # verify flash message has been consumed
+        with self.client.get("/") as response:
+            self.assertNotIn("x9y5.ext does not exist",
+                      response.get_data(as_text=True))
+
 
 if __name__ == "__main__":
     unittest.main()
