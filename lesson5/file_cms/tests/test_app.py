@@ -27,7 +27,7 @@ class TestApp(unittest.TestCase):
 
             # verify contents
             self.assertEqual(response.get_data(),
-                         b"This is my file management application")
+                         b"This is my file management application!")
 
     def test_no_such_document(self):
         # verify redirect
@@ -57,12 +57,37 @@ class TestApp(unittest.TestCase):
                           response.get_data(as_text=True))
 
     def test_edit_document(self):
+        response = self.client.get("/history.txt/edit")
+
         # verify status code of edit button and content type
-        # verify edit form contents
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content_type, "text/html; charset=utf-8")
+
         # verify text area contents
+        self.assertIn("<textarea", response.get_data(as_text=True))
+
+    def test_update_document(self):
+        response = self.client.post("/history.txt",
+                                    data={'content': "new content"})
+
         # verify redirect after save changes
+        self.assertEqual(response.status_code, 302)
+
         # verify new contents of document
+        with self.client.get("/history.txt") as contents:
+            self.assertIn("new content", contents.get_data(as_text=True))
+
         # verify flash message
+        with self.client.get(response.headers['Location']) as response:
+            self.assertEqual(response.status_code, 200)
+            self.assertIn("history.txt has been updated",
+                             response.get_data(as_text=True))
+
         # verify flash message has been consumed
+        with self.client.get('/') as response:
+            self.assertNotIn("history.txt has been updated.",
+                             response.get_data(as_text=True))
+
+
 if __name__ == "__main__":
     unittest.main()
