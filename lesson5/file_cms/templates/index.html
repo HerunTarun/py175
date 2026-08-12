@@ -1,6 +1,15 @@
 {% extends 'layout.html' %}
 
 {% block content %}
+{% with messages = get_flashed_messages(with_categories=True) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">
+        <p>{{ message }}</p>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
   <ul>
     {% for file in files %}
       <li><a href="{{ url_for('document', file_name=file) }}">{{ file }}</a></li>
