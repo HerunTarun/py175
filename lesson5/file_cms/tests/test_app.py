@@ -90,6 +90,8 @@ class TestApp(unittest.TestCase):
         self.assertIn("<textarea", response.get_data(as_text=True))
 
     def test_update_document(self):
+        self.create_document("history.txt", content="some history")
+
         response = self.client.post("/history.txt",
                                     data={'content': "new content"})
 
@@ -110,6 +112,73 @@ class TestApp(unittest.TestCase):
         with self.client.get('/') as response:
             self.assertNotIn("history.txt has been updated.",
                              response.get_data(as_text=True))
+
+    def test_new_document(self):
+        response = self.client.get("/new")
+
+        # verify status code and content type
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content_type, "text/html; charset=utf-8")
+
+        # verify contents
+        self.assertIn("<input name", response.get_data(as_text=True))
+        self.assertIn("<button type=", response.get_data(as_text=True))
+
+    def test_create_document_success(self):
+        response = self.client.post("/new",
+                                    data={ "document_name": "testing.txt"})
+
+        # verify redirect
+        self.assertEqual(response.status_code, 302)
+
+        # verify whether file exists
+        file_path = os.path.join(self.data_path, "testing.txt")
+        self.assertTrue(os.path.exists(file_path))
+
+        # verify flash message
+        with self.client.get(response.headers['Location']) as responses:
+            self.assertEqual(responses.status_code, 200)
+            self.assertIn("testing.txt has been created.",
+                          responses.get_data(as_text=True))
+
+        # verify flash message has been consumed
+        with self.client.get('/') as response:
+            self.assertNotIn("testing.txt has been created.",
+                             response.get_data(as_text=True))
+
+    def test_create_document_when_document_already_exists(self):
+        self.create_document("testing.txt")
+
+        response = self.client.post("/new",
+                                    data={ "document_name": "testing.txt"})
+
+        # verify status code
+        self.assertEqual(response.status_code, 422)
+
+        # verify flash message
+        self.assertIn("testing.txt already exists.",
+                      response.get_data(as_text=True))
+
+        # verify flash message has been consumed
+        with self.client.get("/new") as response:
+            self.assertNotIn("testing.txt already exists.",
+                            response.get_data(as_text=True))
+
+    def test_create_document_without_name(self):
+        response = self.client.post("/new",
+                                    data={ "document_name": ""})
+
+        # verify status code
+        self.assertEqual(response.status_code, 422)
+
+        # verify flash message
+        self.assertIn("A name is required.", response.get_data(as_text=True))
+
+        # verify flash message has been consumed
+        with self.client.get("/new") as response:
+            self.assertNotIn("A name is required.",
+                            response.get_data(as_text=True))
+
 
 
 if __name__ == "__main__":
