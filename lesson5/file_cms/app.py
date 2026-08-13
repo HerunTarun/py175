@@ -139,9 +139,6 @@ def log_in():
 def user_login():
     username = request.form.get('username', '')
     password = request.form.get('password', '')
-    print(f"username: {username}")
-    print(f"password: {password}")
-    print(f"sesion users: {session['users']}")
 
     if not verify_user(username, session['users']):
         flash(f"{username} does not exist", "error")
