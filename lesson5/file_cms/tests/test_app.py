@@ -179,6 +179,47 @@ class TestApp(unittest.TestCase):
             self.assertNotIn("A name is required.",
                             response.get_data(as_text=True))
 
+    def test_delete_file_success(self):
+        self.create_document("delete_this.txt")
+
+        response = self.client.post("/delete_this.txt/delete",
+                                    follow_redirects=True)
+
+        # verify status code
+        self.assertEqual(response.status_code, 200)
+
+        # verify file deleted
+        deleted_file_path = os.path.join(self.data_path, "delete_this.txt")
+        self.assertFalse(os.path.exists(deleted_file_path))
+
+        # verify flash message
+        self.assertIn("delete_this.txt has been deleted.",
+                      response.get_data(as_text=True))
+
+        # verify flash message has been consumed
+        with self.client.get("/") as response:
+            self.assertNotIn("delete_this.txt has been deleted.",
+                      response.get_data(as_text=True))
+
+    def test_delete_file_when_nonexistent_file(self):
+        response = self.client.post("/delete_this.txt/delete",
+                                    follow_redirects=True)
+
+        # verify status code
+        self.assertEqual(response.status_code, 200)
+
+        # verify flash message
+        self.assertIn("delete_this.txt does not exist.",
+                      response.get_data(as_text=True))
+
+        # verify flash message has been consumed
+        with self.client.get("/") as response:
+            self.assertNotIn("delete_this.txt does not exist.",
+                      response.get_data(as_text=True))
+
+
+
+
 
 
 if __name__ == "__main__":
