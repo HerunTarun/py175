@@ -5,7 +5,10 @@
 body {
     font-family: sans-serif;
     padding: 1em;
+}
 form.inline {
     display: inline;
 }
+p.login {
+    font-style: italic;
 }

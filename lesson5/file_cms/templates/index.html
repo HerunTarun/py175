@@ -24,4 +24,18 @@
     {% endfor %}
   </ul>
   <a href="{{ url_for('new_document') }}">new document</a>
+  <div>
+    {% if user %}
+      <p class="login">Signed in as {{ user }}.</p>
+      <form class="inline"
+            action="{{ url_for('log_out_user', user=user)}}"
+            method="post">
+        <button type="submit" class="inline">log out</button>
+      </form>
+    {% else %}
+    <form action="{{ url_for('log_in')}}">
+      <button type="submit">log in</button>
+    </form>
+    {% endif %}
+  </div>
 {% endblock %}
