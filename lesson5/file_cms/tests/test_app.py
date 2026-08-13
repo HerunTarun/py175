@@ -17,7 +17,7 @@ class TestApp(unittest.TestCase):
         with open(os.path.join(self.data_path, name), "w") as file:
             file.write(content)
 
-    def test_index(self):
+    def test_view_index_page(self):
         self.create_document("about.txt")
         self.create_document("changes.txt")
         self.create_document("history.txt")
@@ -77,7 +77,7 @@ class TestApp(unittest.TestCase):
             self.assertIn("A dynamic <em>open source</em>",
                           response.get_data(as_text=True))
 
-    def test_edit_document(self):
+    def test_view_edit_document_page(self):
         self.create_document("history.txt")
 
         response = self.client.get("/history.txt/edit")
@@ -113,7 +113,7 @@ class TestApp(unittest.TestCase):
             self.assertNotIn("history.txt has been updated.",
                              response.get_data(as_text=True))
 
-    def test_new_document(self):
+    def test_view_new_document_page(self):
         response = self.client.get("/new")
 
         # verify status code and content type
@@ -217,8 +217,86 @@ class TestApp(unittest.TestCase):
             self.assertNotIn("delete_this.txt does not exist.",
                       response.get_data(as_text=True))
 
+    def test_view_login_page(self):
+        response = self.client.get("/login")
+
+        # verify status code
+        self.assertEqual(response.status_code, 200)
+
+        # verify contents
+        self.assertIn("<label class=\"login\"",
+                      response.get_data(as_text=True))
+
+    def test_login_form_valid_credentials(self):
+        response = self.client.post("/login",
+                                    data={ "username": "admin",
+                                          "password": "secret3"},
+                                    follow_redirects=True)
+
+        # verify status code and contents
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Signed in as admin", response.get_data(as_text=True))
+
+        # verify flash message
+        self.assertIn("Welcome!", response.get_data(as_text=True))
+
+        # verify flash message consumed
+        with self.client.get("/") as response:
+            self.assertNotIn("Welcome!", response.get_data(as_text=True))
+
+    def test_login_form_valid_user_invalid_password(self):
+        response = self.client.post("/login",
+                                    data={ "username": "admin",
+                                          "password": "jacob"})
+
+        # verify status code and contents
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("admin", response.get_data(as_text=True))
+
+        # verify flash message
+        self.assertIn("Invalid password", response.get_data(as_text=True))
+
+        # verify flash message consumed
+        with self.client.get("/login") as response:
+            self.assertNotIn("Invalid password",
+                             response.get_data(as_text=True))
 
 
+    def test_login_form_invalid_credentials(self):
+        response = self.client.post("/login",
+                                    data={ "username": "john",
+                                          "password": "jacob"})
+
+        # verify status code and contents
+        self.assertEqual(response.status_code, 200)
+
+        # verify flash message
+        self.assertIn("john does not exist.", response.get_data(as_text=True))
+
+        # verify flash message consumed
+        with self.client.get("/login") as response:
+            self.assertNotIn("john does not exist.",
+                             response.get_data(as_text=True))
+
+    def test_logout_form(self):
+        self.client.post("/login",
+                         data={ "username": "admin",
+                               "password": "secret3"},
+                         follow_redirects=True)
+
+        response = self.client.post("/admin/logout", follow_redirects=True)
+
+        # verify status code and contents
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("log in", response.get_data(as_text=True))
+
+        # verify flash message
+        self.assertIn("You have been logged out.", response.get_data(as_text=True))
+
+        # verify flash message consumed
+        with self.client.get("/") as response:
+            self.assertNotIn("You have been logged out.",
+                             response.get_data(as_text=True))
 
 
 
