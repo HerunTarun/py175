@@ -1,12 +1,27 @@
 import unittest
+import shutil
+import os
 from app import app
 
 class TestApp(unittest.TestCase):
     def setUp(self):
         app.config['TESTING'] = True
         self.client = app.test_client()
+        self.data_path = os.path.join(os.path.dirname(__file__), 'data')
+        os.makedirs(self.data_path, exist_ok=True)
+
+    def tearDown(self):
+        shutil.rmtree(self.data_path, ignore_errors=True)
+
+    def create_document(self, name, content=""):
+        with open(os.path.join(self.data_path, name), "w") as file:
+            file.write(content)
 
     def test_index(self):
+        self.create_document("about.txt")
+        self.create_document("changes.txt")
+        self.create_document("history.txt")
+
         response = self.client.get("/")
 
         # verify status code and content type
@@ -19,6 +34,9 @@ class TestApp(unittest.TestCase):
         self.assertIn("history.txt", response.get_data(as_text=True))
 
     def test_view_document(self):
+        self.create_document("about.txt",
+                             content="This is my file management application.")
+
         with self.client.get("/about.txt") as response:
             # verify status code and content type
             self.assertEqual(response.status_code, 200)
@@ -27,7 +45,7 @@ class TestApp(unittest.TestCase):
 
             # verify contents
             self.assertEqual(response.get_data(),
-                         b"This is my file management application!")
+                         b"This is my file management application.")
 
     def test_no_such_document(self):
         # verify redirect
@@ -46,6 +64,9 @@ class TestApp(unittest.TestCase):
                       response.get_data(as_text=True))
 
     def test_markdown_files(self):
+        self.create_document("markdown.md",
+                             content="A dynamic <em>open source</em>")
+
         with self.client.get("/markdown.md") as response:
             # verify status code and content type
             self.assertEqual(response.status_code, 200)
@@ -53,10 +74,12 @@ class TestApp(unittest.TestCase):
                              "text/html; charset=utf-8")
 
             # verify contents
-            self.assertIn("A dynamic <em>open source</em> programming",
+            self.assertIn("A dynamic <em>open source</em>",
                           response.get_data(as_text=True))
 
     def test_edit_document(self):
+        self.create_document("history.txt")
+
         response = self.client.get("/history.txt/edit")
 
         # verify status code of edit button and content type
