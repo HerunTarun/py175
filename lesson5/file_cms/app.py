@@ -141,11 +141,11 @@ def user_login():
     password = request.form.get('password', '')
 
     if not verify_user(username, session['users']):
-        flash(f"{username} does not exist", "error")
+        flash(f"{username} does not exist.", "error")
         return render_template('login.html')
     else:
         if not verify_user_password(username, password, session['users']):
-            flash(f"Invalid password", "error")
+            flash(f"Invalid password.", "error")
             return render_template('login.html', username=username)
         else:
             toggle_user_login_status(username, session['users'])
