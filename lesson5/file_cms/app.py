@@ -34,8 +34,9 @@ def document(file_name):
     if os.path.isfile(file_path):
         if file_name.endswith('.md'):
             with open(file_path, "r") as f:
-                contents = markdown(f.read())
-            return markdown(contents)
+                contents = f.read()
+            return render_template('markdown.html',
+                                   contents=markdown(contents))
         else:
             return send_from_directory(data_dir, file_name)
     else:
