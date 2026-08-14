@@ -25,8 +25,8 @@ class TestApp(unittest.TestCase):
         response = self.client.get("/")
 
         # verify status code and content type
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content_type, "text/html; charset=utf-8")
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("text/html; charset=utf-8", response.content_type)
 
         # verify contents
         self.assertIn("about.txt", response.get_data(as_text=True))
@@ -39,22 +39,22 @@ class TestApp(unittest.TestCase):
 
         with self.client.get("/about.txt") as response:
             # verify status code and content type
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.content_type,
-                             "text/plain; charset=utf-8")
+            self.assertEqual(200, response.status_code)
+            self.assertEqual("text/plain; charset=utf-8",
+                             response.content_type)
 
             # verify contents
-            self.assertEqual(response.get_data(),
-                         b"This is my file management application.")
+            self.assertEqual(b"This is my file management application.",
+                             response.get_data())
 
     def test_no_such_document(self):
         # verify redirect
         with self.client.get("/x9y5.ext") as response:
-            self.assertEqual(response.status_code, 302)
+            self.assertEqual(302, response.status_code)
 
         # verify flash message
         with self.client.get(response.headers['Location']) as response:
-            self.assertEqual(response.status_code, 200)
+            self.assertEqual(200, response.status_code)
             self.assertIn("x9y5.ext does not exist",
                       response.get_data(as_text=True))
 
@@ -69,9 +69,8 @@ class TestApp(unittest.TestCase):
 
         with self.client.get("/markdown.md") as response:
             # verify status code and content type
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(response.content_type,
-                             "text/html; charset=utf-8")
+            self.assertEqual(200, response.status_code)
+            self.assertEqual("text/html; charset=utf-8", response.content_type)
 
             # verify contents
             self.assertIn("A dynamic <em>open source</em>",
@@ -83,8 +82,8 @@ class TestApp(unittest.TestCase):
         response = self.client.get("/history.txt/edit")
 
         # verify status code of edit button and content type
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content_type, "text/html; charset=utf-8")
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("text/html; charset=utf-8", response.content_type)
 
         # verify text area contents
         self.assertIn("<textarea", response.get_data(as_text=True))
@@ -96,7 +95,7 @@ class TestApp(unittest.TestCase):
                                     data={'content': "new content"})
 
         # verify redirect after save changes
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(302, response.status_code)
 
         # verify new contents of document
         with self.client.get("/history.txt") as contents:
@@ -104,7 +103,7 @@ class TestApp(unittest.TestCase):
 
         # verify flash message
         with self.client.get(response.headers['Location']) as response:
-            self.assertEqual(response.status_code, 200)
+            self.assertEqual(200, response.status_code)
             self.assertIn("history.txt has been updated",
                              response.get_data(as_text=True))
 
@@ -117,8 +116,8 @@ class TestApp(unittest.TestCase):
         response = self.client.get("/new")
 
         # verify status code and content type
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.content_type, "text/html; charset=utf-8")
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("text/html; charset=utf-8", response.content_type)
 
         # verify contents
         self.assertIn("<input name", response.get_data(as_text=True))
@@ -129,7 +128,7 @@ class TestApp(unittest.TestCase):
                                     data={ "document_name": "testing.txt"})
 
         # verify redirect
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(302, response.status_code)
 
         # verify whether file exists
         file_path = os.path.join(self.data_path, "testing.txt")
@@ -137,7 +136,7 @@ class TestApp(unittest.TestCase):
 
         # verify flash message
         with self.client.get(response.headers['Location']) as responses:
-            self.assertEqual(responses.status_code, 200)
+            self.assertEqual(200, responses.status_code)
             self.assertIn("testing.txt has been created.",
                           responses.get_data(as_text=True))
 
@@ -153,7 +152,7 @@ class TestApp(unittest.TestCase):
                                     data={ "document_name": "testing.txt"})
 
         # verify status code
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(422, response.status_code)
 
         # verify flash message
         self.assertIn("testing.txt already exists.",
@@ -169,7 +168,7 @@ class TestApp(unittest.TestCase):
                                     data={ "document_name": ""})
 
         # verify status code
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(422, response.status_code)
 
         # verify flash message
         self.assertIn("A name is required.", response.get_data(as_text=True))
@@ -186,7 +185,7 @@ class TestApp(unittest.TestCase):
                                     follow_redirects=True)
 
         # verify status code
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
 
         # verify file deleted
         deleted_file_path = os.path.join(self.data_path, "delete_this.txt")
@@ -206,7 +205,7 @@ class TestApp(unittest.TestCase):
                                     follow_redirects=True)
 
         # verify status code
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
 
         # verify flash message
         self.assertIn("delete_this.txt does not exist.",
@@ -221,7 +220,7 @@ class TestApp(unittest.TestCase):
         response = self.client.get("/login")
 
         # verify status code
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
 
         # verify contents
         self.assertIn("<label class=\"login\"",
@@ -234,7 +233,7 @@ class TestApp(unittest.TestCase):
                                     follow_redirects=True)
 
         # verify status code and contents
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
         self.assertIn("Signed in as admin", response.get_data(as_text=True))
 
         # verify flash message
@@ -250,7 +249,7 @@ class TestApp(unittest.TestCase):
                                           "password": "jacob"})
 
         # verify status code and contents
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
         self.assertIn("admin", response.get_data(as_text=True))
 
         # verify flash message
@@ -268,7 +267,7 @@ class TestApp(unittest.TestCase):
                                           "password": "jacob"})
 
         # verify status code and contents
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
 
         # verify flash message
         self.assertIn("john does not exist.", response.get_data(as_text=True))
@@ -287,7 +286,7 @@ class TestApp(unittest.TestCase):
         response = self.client.post("/admin/logout", follow_redirects=True)
 
         # verify status code and contents
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
         self.assertIn("log in", response.get_data(as_text=True))
 
         # verify flash message
