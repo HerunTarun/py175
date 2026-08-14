@@ -13,6 +13,19 @@ class TestApp(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.data_path, ignore_errors=True)
 
+    def admin_session(self):
+        with self.client as client:
+            with client.session_transaction() as session:
+                session['users'] = [
+                    {
+                        'admin': {
+                            'password': 'secret4',
+                            'logged in': True,
+                        }
+                    }
+                ]
+            return client
+
     def create_document(self, name, content=""):
         with open(os.path.join(self.data_path, name), "w") as file:
             file.write(content)
@@ -77,6 +90,7 @@ class TestApp(unittest.TestCase):
                           response.get_data(as_text=True))
 
     def test_view_edit_document_page(self):
+        self.admin_session()
         self.create_document("history.txt")
 
         response = self.client.get("/history.txt/edit")
@@ -89,6 +103,7 @@ class TestApp(unittest.TestCase):
         self.assertIn("<textarea", response.get_data(as_text=True))
 
     def test_update_document(self):
+        self.admin_session()
         self.create_document("history.txt", content="some history")
 
         response = self.client.post("/history.txt",
@@ -113,6 +128,7 @@ class TestApp(unittest.TestCase):
                              response.get_data(as_text=True))
 
     def test_view_new_document_page(self):
+        self.admin_session()
         response = self.client.get("/new")
 
         # verify status code and content type
@@ -124,6 +140,7 @@ class TestApp(unittest.TestCase):
         self.assertIn("<button type=", response.get_data(as_text=True))
 
     def test_create_document_success(self):
+        self.admin_session()
         response = self.client.post("/new",
                                     data={ "document_name": "testing.txt"})
 
@@ -146,6 +163,7 @@ class TestApp(unittest.TestCase):
                              response.get_data(as_text=True))
 
     def test_create_document_when_document_already_exists(self):
+        self.admin_session()
         self.create_document("testing.txt")
 
         response = self.client.post("/new",
@@ -164,6 +182,7 @@ class TestApp(unittest.TestCase):
                             response.get_data(as_text=True))
 
     def test_create_document_without_name(self):
+        self.admin_session()
         response = self.client.post("/new",
                                     data={ "document_name": ""})
 
@@ -179,6 +198,7 @@ class TestApp(unittest.TestCase):
                             response.get_data(as_text=True))
 
     def test_delete_file_success(self):
+        self.admin_session()
         self.create_document("delete_this.txt")
 
         response = self.client.post("/delete_this.txt/delete",
@@ -201,6 +221,7 @@ class TestApp(unittest.TestCase):
                       response.get_data(as_text=True))
 
     def test_delete_file_when_nonexistent_file(self):
+        self.admin_session()
         response = self.client.post("/delete_this.txt/delete",
                                     follow_redirects=True)
 
