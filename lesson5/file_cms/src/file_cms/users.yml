@@ -1,13 +1,13 @@
 [
   {
     'admin': {
-      'password': 'secret4',
+      'password': '$2b$12$s.XGEC2m9fUvQJ4GCs.IN.TBsGZmgnuOiQS0wnkVsYTqVbCs4D49W',
       'logged in': False,
     }
   },
   {
     'john': {
-      'password': 'notasecret',
+      'password': '$2b$12$uJPwjTzSC9H5vAdnbTwBXuEjwBvWw0PJ4nlV.cq6qEFyIt9J3uB6a',
       'logged in': False,
     }
   }

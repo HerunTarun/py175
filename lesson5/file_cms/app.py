@@ -27,7 +27,6 @@ app.secret_key = 'secret3'
 @app.before_request
 def initialize_session():
     users = load_users()
-    print(users)
     if 'users' not in session:
         session['users'] = users
 
@@ -166,8 +165,6 @@ def log_in():
 def user_login():
     username = request.form.get('username', '')
     password = request.form.get('password', '')
-    print(username)
-    print(verify_user(username, session['users']))
 
     if not verify_user(username, session['users']):
         flash(f"{username} does not exist.", "error")
