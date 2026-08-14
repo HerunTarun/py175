@@ -1,0 +1,14 @@
+[
+  {
+    'admin': {
+      'password': 'secret4',
+      'logged in': False,
+    }
+  },
+  {
+    'john': {
+      'password': 'notasecret',
+      'logged in': False,
+    }
+  }
+]

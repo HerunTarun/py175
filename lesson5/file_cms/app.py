@@ -12,6 +12,7 @@ from flask import (
     url_for
     )
 from markdown import markdown
+import yaml
 
 from src.file_cms.utils import (
     find_logged_in_user,
@@ -25,15 +26,22 @@ app.secret_key = 'secret3'
 
 @app.before_request
 def initialize_session():
+    users = load_users()
+    print(users)
     if 'users' not in session:
-        session['users'] = [
-            {
-                'admin': {
-                    'password': 'secret4',
-                    'logged in': False,
-                }
-            }
-        ]
+        session['users'] = users
+
+def load_users():
+    file = 'users.yml'
+    if app.config['TESTING']:
+        users_path = os.path.join(os.path.dirname(__file__), 'tests', file)
+    else:
+        users_path = os.path.join(os.path.dirname(__file__), 'src',
+                                  'file_cms',
+                                  file)
+
+    with open(users_path, "r") as file:
+        return yaml.safe_load(file)
 
 def require_login(func):
     @wraps(func)
@@ -158,6 +166,8 @@ def log_in():
 def user_login():
     username = request.form.get('username', '')
     password = request.form.get('password', '')
+    print(username)
+    print(verify_user(username, session['users']))
 
     if not verify_user(username, session['users']):
         flash(f"{username} does not exist.", "error")
