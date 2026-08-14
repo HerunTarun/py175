@@ -1,3 +1,6 @@
+import os
+from functools import wraps
+
 from flask import (
     flash,
     Flask,
@@ -8,9 +11,8 @@ from flask import (
     session,
     url_for
     )
-from functools import wraps
 from markdown import markdown
-import os
+
 from utils import (
     find_logged_in_user,
     verify_user,
