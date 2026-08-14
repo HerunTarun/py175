@@ -8,6 +8,7 @@ from flask import (
     session,
     url_for
     )
+from functools import wraps
 from markdown import markdown
 import os
 from utils import (
@@ -26,11 +27,22 @@ def initialize_session():
         session['users'] = [
             {
                 'admin': {
-                    'password': app.secret_key,
+                    'password': 'secret4',
                     'logged in': False,
                 }
             }
         ]
+
+def require_login(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        if not find_logged_in_user(session['users']):
+            flash("You must be logged in to do that", "error")
+            return redirect(url_for('log_in'))
+        else:
+            result = func(*args, **kwargs)
+            return result
+    return wrapper
 
 def get_data_path():
     if app.config['TESTING']:
@@ -65,6 +77,7 @@ def document(file_name):
         return redirect(url_for('index', file_name=file_name))
 
 @app.route("/<file_name>/edit")
+@require_login
 def edit_document(file_name):
     data_dir = get_data_path()
     file_path = os.path.join(data_dir, file_name)
@@ -80,6 +93,7 @@ def edit_document(file_name):
         return redirect(url_for('index', file_name=file_name))
 
 @app.route("/<file_name>", methods=["POST"])
+@require_login
 def update_document(file_name):
     data_dir = get_data_path()
     file_path = os.path.join(data_dir, file_name)
@@ -92,11 +106,13 @@ def update_document(file_name):
     return redirect(url_for('index'))
 
 @app.route("/new")
+@require_login
 def new_document():
     title = 'New Document'
     return render_template('new_document.html', title=title)
 
 @app.route("/new", methods=["POST"])
+@require_login
 def create_document():
     document_name = request.form.get('document_name', '').strip()
 
@@ -119,6 +135,7 @@ def create_document():
         return redirect(url_for('index'))
 
 @app.route("/<file_name>/delete", methods=["POST"])
+@require_login
 def delete_document(file_name):
     data_dir = get_data_path()
     file_path = os.path.join(data_dir, file_name)
